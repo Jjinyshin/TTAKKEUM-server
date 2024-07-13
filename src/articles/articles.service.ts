@@ -30,9 +30,17 @@ export class ArticlesService {
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
+    const { authorId, ...articleData } = updateArticleDto;
+
     return this.prisma.article.update({
       where: { id },
-      data: updateArticleDto,
+      data: {
+        ...articleData,
+        author: {
+          connect: { id: authorId },
+        },
+      },
+      include: { author: true },
     });
   }
 
