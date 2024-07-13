@@ -4,16 +4,40 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  // create dummy users
+  const user1 = await prisma.user.upsert({
+    where: { email: 'user1@example.com' },
+    update: {},
+    create: {
+      email: 'user1@example.com',
+      nickname: 'User One',
+      password: 'securepassword',
+    },
+  });
+
+  const user2 = await prisma.user.upsert({
+    where: { email: 'user2@example.com' },
+    update: {},
+    create: {
+      email: 'user2@example.com',
+      nickname: 'User Two',
+      password: 'securepassword',
+    },
+  });
+
   // create two dummy articles
   const post1 = await prisma.article.upsert({
     where: { title: 'Prisma Adds Support for MongoDB' },
     update: {},
     create: {
       title: 'Prisma Adds Support for MongoDB',
-      body: 'Support for MongoDB has been one of the most requested features since the initial release of...',
-      description:
-        "We are excited to share that today's Prisma ORM release adds stable support for MongoDB!",
-      published: false,
+      content:
+        'Support for MongoDB has been one of the most requested features since the initial release of...',
+      imageUrl: null,
+      hashtag: { set: ['prisma', 'mongodb'] }, // Json field as an array
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      authorId: user1.id, // reference to user1
     },
   });
 
@@ -22,10 +46,13 @@ async function main() {
     update: {},
     create: {
       title: "What's new in Prisma? (Q1/22)",
-      body: 'Our engineers have been working hard, issuing new releases with many improvements...',
-      description:
-        'Learn about everything in the Prisma ecosystem and community from January to March 2022.',
-      published: true,
+      content:
+        'Our engineers have been working hard, issuing new releases with many improvements...',
+      imageUrl: 'https://example.com/image.png',
+      hashtag: { set: ['prisma', 'update', 'q1'] }, // Json field as an array
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      authorId: user2.id, // reference to user2
     },
   });
 
