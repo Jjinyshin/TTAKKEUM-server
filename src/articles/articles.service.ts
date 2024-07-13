@@ -17,16 +17,19 @@ export class ArticlesService {
           connect: { id: authorId },
         },
       },
-      include: { author: true },
+      include: { author: false },
     });
   }
 
   findAll() {
-    return this.prisma.article.findMany();
+    return this.prisma.article.findMany({ include: { author: true } });
   }
 
   findOne(id: number) {
-    return this.prisma.article.findUnique({ where: { id } });
+    return this.prisma.article.findUnique({
+      where: { id },
+      include: { author: true },
+    });
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
@@ -40,7 +43,7 @@ export class ArticlesService {
           connect: { id: authorId },
         },
       },
-      include: { author: true },
+      include: { author: false },
     });
   }
 
