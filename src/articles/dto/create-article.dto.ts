@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -42,6 +43,7 @@ export class CreateArticleDto {
   hashtag?: string[];
 
   // TODO: change to Token
+  @IsNumber()
   @ApiProperty({ description: '작성자 ID' })
   authorId: number;
 }
