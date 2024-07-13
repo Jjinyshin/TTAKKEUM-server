@@ -1,5 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CreateUserDto {
-  name: string;
+  @ApiProperty({ description: '사용자 이메일' })
   email: string;
-  phone?: string;
+
+  @ApiProperty({ description: '사용자 닉네임' })
+  nickname: string;
+
+  @ApiProperty({ description: '사용자 비밀번호' })
+  password: string;
 }

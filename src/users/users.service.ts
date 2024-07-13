@@ -1,38 +1,47 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  // 임시로 배열에 저장
-  private users: Array<User> = [];
-  private id = 0;
+  constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    this.users.push({ id: ++this.id, ...createUserDto, createdAt: new Date() });
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    return this.prisma.user.create({
+      data: createUserDto,
+    });
   }
 
-  findAll() {
-    return [...this.users];
+  async findAll(): Promise<UserEntity[]> {
+    return this.prisma.user.findMany();
   }
 
-  findOne(id: number) {
-    const found = this.users.find((u) => u.id === id);
-    if (!found) throw new NotFoundException();
-    return found;
+  async findOne(id: number): Promise<UserEntity> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    const found = this.findOne(id);
-    const updatedUser = { ...found, ...updateUserDto, updatedAt: new Date() };
-    this.users = this.users.map((user) =>
-      user.id === id ? updatedUser : user,
-    );
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+    await this.findOne(id); // Throws NotFoundException if user not found
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: number) {
-    this.findOne(id);
-    this.users = this.users.filter((u) => u.id !== id);
+  async remove(id: number): Promise<void> {
+    await this.findOne(id); // Throws NotFoundException if user not found
+
+    await this.prisma.user.delete({
+      where: { id },
+    });
   }
 }
