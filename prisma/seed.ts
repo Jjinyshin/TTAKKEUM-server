@@ -12,6 +12,7 @@ async function main() {
       email: 'user1@example.com',
       nickname: 'User One',
       password: 'securepassword',
+      dochiname: '고슴이',
     },
   });
 
@@ -22,12 +23,13 @@ async function main() {
       email: 'user2@example.com',
       nickname: 'User Two',
       password: 'securepassword',
+      dochiname: '도치',
     },
   });
 
   // create two dummy articles
   const post1 = await prisma.article.upsert({
-    where: { title: 'Prisma Adds Support for MongoDB' },
+    where: { id: 1, title: 'Prisma Adds Support for MongoDB' },
     update: {},
     create: {
       title: 'Prisma Adds Support for MongoDB',
@@ -42,7 +44,7 @@ async function main() {
   });
 
   const post2 = await prisma.article.upsert({
-    where: { title: "What's new in Prisma? (Q1/22)" },
+    where: { id: 2, title: "What's new in Prisma? (Q1/22)" },
     update: {},
     create: {
       title: "What's new in Prisma? (Q1/22)",

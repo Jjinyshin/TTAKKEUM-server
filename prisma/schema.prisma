@@ -11,6 +11,7 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   nickname  String
+  dochiname String
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -19,7 +20,7 @@ model User {
 
 model Article {
   id        Int      @id @default(autoincrement())
-  title     String   @unique
+  title     String
   content   String
   imageUrl  String?
   hashtag   Json?
