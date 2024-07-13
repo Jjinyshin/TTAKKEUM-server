@@ -36,12 +36,6 @@ export class ArticlesController {
     return this.articlesService.findOne(+id);
   }
 
-  @Get('drafts')
-  @ApiOkResponse({ type: ArticleEntity, isArray: true })
-  findDrafts() {
-    return this.articlesService.findDrafts();
-  }
-
   @Patch(':id')
   @ApiOkResponse({ type: ArticleEntity })
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
