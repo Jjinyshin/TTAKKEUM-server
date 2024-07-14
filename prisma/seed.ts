@@ -35,7 +35,7 @@ async function main() {
       title: 'Prisma Adds Support for MongoDB',
       content:
         'Support for MongoDB has been one of the most requested features since the initial release of...',
-      imageUrl: null,
+      image: null,
       hashtag: { set: ['prisma', 'mongodb'] }, // Json field as an array
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -50,7 +50,7 @@ async function main() {
       title: "What's new in Prisma? (Q1/22)",
       content:
         'Our engineers have been working hard, issuing new releases with many improvements...',
-      imageUrl: 'https://example.com/image.png',
+      image: 'https://example.com/image.png',
       hashtag: { set: ['prisma', 'update', 'q1'] }, // Json field as an array
       createdAt: new Date(),
       updatedAt: new Date(),

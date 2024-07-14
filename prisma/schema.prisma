@@ -22,7 +22,7 @@ model Article {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  imageUrl  String?
+  image     String?
   hashtag   Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
