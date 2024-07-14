@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ArticleEntity } from './entities/article.entity';
 
 @Injectable()
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
-  create(createArticleDto: CreateArticleDto) {
+  async create(createArticleDto: CreateArticleDto): Promise<ArticleEntity> {
     const { authorId, ...articleData } = createArticleDto;
 
-    return this.prisma.article.create({
+    const article = await this.prisma.article.create({
       data: {
         ...articleData,
         author: {
@@ -19,23 +20,53 @@ export class ArticlesService {
       },
       include: { author: false },
     });
+
+    // Convert JsonValue to string[]
+    const articleEntity = new ArticleEntity({
+      ...article,
+      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+    });
+
+    return articleEntity;
   }
 
-  findAll() {
-    return this.prisma.article.findMany({ include: { author: true } });
+  async findAll(): Promise<ArticleEntity[]> {
+    const articles = await this.prisma.article.findMany({
+      include: { author: true },
+    });
+
+    return articles.map(
+      (article) =>
+        new ArticleEntity({
+          ...article,
+          hashtag: article.hashtag as string[],
+        }),
+    );
   }
 
-  findOne(id: number) {
-    return this.prisma.article.findUnique({
+  async findOne(id: number): Promise<ArticleEntity> {
+    const article = await this.prisma.article.findUnique({
       where: { id },
       include: { author: true },
     });
+
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+
+    return new ArticleEntity({
+      ...article,
+      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+    });
   }
 
-  update(id: number, updateArticleDto: UpdateArticleDto) {
+  async update(
+    id: number,
+    updateArticleDto: UpdateArticleDto,
+  ): Promise<ArticleEntity> {
     const { authorId, ...articleData } = updateArticleDto;
 
-    return this.prisma.article.update({
+    const article = await this.prisma.article.update({
       where: { id },
       data: {
         ...articleData,
@@ -43,11 +74,24 @@ export class ArticlesService {
           connect: { id: authorId },
         },
       },
-      include: { author: false },
+      include: { author: true }, // Include author data if needed
+    });
+
+    return new ArticleEntity({
+      ...article,
+      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
     });
   }
 
-  remove(id: number) {
-    return this.prisma.article.delete({ where: { id } });
+  async remove(id: number): Promise<ArticleEntity> {
+    const article = await this.prisma.article.delete({
+      where: { id },
+      include: { author: true },
+    });
+
+    return new ArticleEntity({
+      ...article,
+      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+    });
   }
 }

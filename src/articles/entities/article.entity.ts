@@ -1,8 +1,13 @@
-import { Article, User } from '@prisma/client';
+import { Article } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from 'src/users/entities/user.entity';
 
 export class ArticleEntity implements Article {
+  constructor({ author, ...data }: Partial<ArticleEntity>) {
+    this.author = new UserEntity(author);
+    Object.assign(this, data);
+  }
+
   @ApiProperty({ description: '게시글 id' })
   id: number;
 
