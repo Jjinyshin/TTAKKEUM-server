@@ -30,6 +30,7 @@ async function bootstrap() {
     .setTitle('TTAKKEUM API')
     .setDescription('The TTAKKEUM API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
