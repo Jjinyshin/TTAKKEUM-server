@@ -3,31 +3,44 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ArticleEntity } from './entities/article.entity';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createArticleDto: CreateArticleDto): Promise<ArticleEntity> {
-    const { authorId, ...articleData } = createArticleDto;
+  async create(
+    createArticleDto: CreateArticleDto,
+    image?: Express.Multer.File,
+  ): Promise<ArticleEntity> {
+    const { authorId, hashtag, ...articleData } = createArticleDto;
+    const hashtags = Array.isArray(hashtag) ? hashtag : [hashtag];
+
+    let imageUrl: string | null = null;
+    if (image) {
+      const fileName = `${Date.now()}-${image.originalname}`;
+      const filePath = join(__dirname, '..', 'uploads', fileName);
+      writeFileSync(filePath, image.buffer);
+      imageUrl = `/uploads/${fileName}`;
+    }
 
     const article = await this.prisma.article.create({
       data: {
         ...articleData,
+        image: imageUrl,
+        hashtag: hashtags || [],
         author: {
           connect: { id: authorId },
         },
       },
-      include: { author: false },
+      include: { author: true },
     });
 
-    // Convert JsonValue to string[]
-    const articleEntity = new ArticleEntity({
+    return new ArticleEntity({
       ...article,
-      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+      hashtag: article.hashtag as string[],
     });
-
-    return articleEntity;
   }
 
   async findAll(): Promise<ArticleEntity[]> {
@@ -63,18 +76,28 @@ export class ArticlesService {
   async update(
     id: number,
     updateArticleDto: UpdateArticleDto,
+    image?: Express.Multer.File,
   ): Promise<ArticleEntity> {
     const { authorId, ...articleData } = updateArticleDto;
+
+    let imageUrl: string | null = null;
+    if (image) {
+      const fileName = `${Date.now()}-${image.originalname}`;
+      const filePath = join(__dirname, '..', 'uploads', fileName);
+      writeFileSync(filePath, image.buffer);
+      imageUrl = `/uploads/${fileName}`;
+    }
 
     const article = await this.prisma.article.update({
       where: { id },
       data: {
         ...articleData,
+        ...(imageUrl && { image: imageUrl }),
         author: {
           connect: { id: authorId },
         },
       },
-      include: { author: true }, // Include author data if needed
+      include: { author: true },
     });
 
     return new ArticleEntity({
