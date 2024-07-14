@@ -15,9 +15,6 @@ export class UserEntity implements User {
   @ApiProperty({ description: '도치 이름' })
   dochiname: string;
 
-  @ApiProperty({ description: '사용자 비밀번호' })
-  password: string;
-
   @ApiProperty({ description: '사용자 생성 시각' })
   createdAt: Date;
 
@@ -30,4 +27,6 @@ export class UserEntity implements User {
     required: false,
   })
   articles?: ArticleEntity[];
+
+  password: string;
 }

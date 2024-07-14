@@ -24,7 +24,7 @@ export class ArticleEntity implements Article {
     nullable: true,
     description: '해시태그',
   })
-  hashtag: any; // Prisma에서 Json 타입은 TypeScript에서 any로 매핑됨
+  hashtag: string[];
 
   @ApiProperty({ description: '게시글 작성시각' })
   createdAt: Date;
