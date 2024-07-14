@@ -25,7 +25,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return user;
+    return new UserEntity(user);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
@@ -37,11 +37,12 @@ export class UsersService {
     });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.findOne(id); // Throws NotFoundException if user not found
+  async remove(id: number): Promise<UserEntity> {
+    const user = await this.findOne(id); // Throws NotFoundException if user not found
 
     await this.prisma.user.delete({
       where: { id },
     });
+    return new UserEntity(user);
   }
 }
