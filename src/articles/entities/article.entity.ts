@@ -22,7 +22,7 @@ export class ArticleEntity implements Article {
     nullable: true,
     description: '이미지 URL',
   })
-  imageUrl: string;
+  image: string;
 
   @ApiProperty({
     required: false,

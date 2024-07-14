@@ -1,17 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize,
-  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  MaxLength,
   MinLength,
+  MaxLength,
 } from 'class-validator';
 
-export class CreateArticleDto {
+export class CreateArticleRequestDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
@@ -33,19 +31,17 @@ export class CreateArticleDto {
   })
   image?: Express.Multer.File;
 
-  @IsArray()
-  @ArrayMaxSize(5)
+  @IsString()
   @IsOptional()
   @ApiProperty({
     required: false,
     nullable: true,
-    description: '해시태그',
+    description: '해시태그 (쉼표로 구분된 문자열)',
   })
-  hashtag?: string[];
+  hashtag?: string;
 
-  // TODO: change to Token
-  @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: '작성자 ID' })
+  @Type(() => Number)
   authorId: number;
 }
