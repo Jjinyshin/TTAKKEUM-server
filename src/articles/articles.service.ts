@@ -6,6 +6,8 @@ import { ArticleEntity } from './entities/article.entity';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { LikeArticleDto } from './dto/like-article.dto';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -140,5 +142,24 @@ export class ArticlesService {
       ...article,
       hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
     });
+  }
+
+  async getTopArticlesAuthors(): Promise<DochiofTheWeekDto[]> {
+    const topArticles = await this.prisma.article.findMany({
+      orderBy: {
+        likes: 'desc',
+      },
+      take: 3,
+      include: {
+        author: true,
+      },
+    });
+
+    console.log(topArticles);
+
+    const topAuthors = topArticles.map(
+      (article) => new DochiofTheWeekDto(article.author, article.likes),
+    );
+    return topAuthors;
   }
 }

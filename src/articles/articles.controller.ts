@@ -28,6 +28,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { LikeArticleDto } from './dto/like-article.dto';
+import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -65,7 +66,6 @@ export class ArticlesController {
   }
 
   @Get()
-  @ApiOkResponse({ type: ArticleEntity, isArray: true })
   async findAll() {
     const articles = await this.articlesService.findAll();
     return articles.map((article) => {
@@ -75,6 +75,12 @@ export class ArticlesController {
       }
       return entity;
     });
+  }
+
+  @Get('dochi-of-the-week')
+  @ApiOkResponse({ type: DochiofTheWeekDto, isArray: true })
+  async getDochiofTheWeek() {
+    return await this.articlesService.getTopArticlesAuthors();
   }
 
   @Get(':id')
