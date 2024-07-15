@@ -1,6 +1,7 @@
 import { Article } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { CommentEntity } from 'src/comments/entities/comment.entity';
 
 export class ArticleEntity implements Article {
   constructor({ author, ...data }: Partial<ArticleEntity>) {
@@ -45,4 +46,7 @@ export class ArticleEntity implements Article {
 
   @ApiProperty({ description: '작성자 정보', type: () => UserEntity })
   author: UserEntity;
+
+  @ApiProperty({ description: '댓글들', type: () => [CommentEntity] })
+  comments: CommentEntity[];
 }

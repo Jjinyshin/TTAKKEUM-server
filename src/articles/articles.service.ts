@@ -7,6 +7,7 @@ import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { LikeArticleDto } from './dto/like-article.dto';
 import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
+import { CommentEntity } from 'src/comments/entities/comment.entity';
 
 @Injectable()
 export class ArticlesService {
@@ -62,7 +63,14 @@ export class ArticlesService {
   async findOne(id: number): Promise<ArticleEntity> {
     const article = await this.prisma.article.findUnique({
       where: { id },
-      include: { author: true },
+      include: {
+        author: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
 
     if (!article) {
@@ -71,7 +79,8 @@ export class ArticlesService {
 
     return new ArticleEntity({
       ...article,
-      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+      hashtag: article.hashtag as string[],
+      comments: article.comments.map((comment) => new CommentEntity(comment)), // Explicitly map comments to CommentEntity
     });
   }
 
