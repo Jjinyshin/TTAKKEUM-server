@@ -165,10 +165,9 @@ export class ArticlesService {
       },
     });
 
-    console.log(topArticles);
-
     const topAuthors = topArticles.map(
-      (article) => new DochiofTheWeekDto(article.author, article.likes),
+      (article) =>
+        new DochiofTheWeekDto(article.author, article.likes, article.image),
     );
     return topAuthors;
   }
