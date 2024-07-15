@@ -6,6 +6,7 @@ import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-cl
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
+import * as express from 'express';
 
 declare const module: any;
 dotenv.config();
@@ -17,7 +18,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useStaticAssets(join(__dirname, '..', 'uploads'));
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   // app.enableCors({
   //   origin:

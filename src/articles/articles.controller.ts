@@ -67,16 +67,28 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleEntity, isArray: true })
   async findAll() {
     const articles = await this.articlesService.findAll();
-    return articles.map((article) => new ArticleEntity(article));
+    return articles.map((article) => {
+      const entity = new ArticleEntity(article);
+      if (entity.image) {
+        entity.image = `${process.env.BASE_URL}${entity.image}`;
+      }
+    });
   }
 
   @Get(':id')
   @ApiOkResponse({ type: ArticleEntity })
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    return new ArticleEntity(await this.articlesService.findOne(id));
+    const article = await this.articlesService.findOne(id);
+    const entity = new ArticleEntity(article);
+    if (entity.image) {
+      entity.image = `${process.env.BASE_URL}${entity.image}`;
+    }
+    return entity;
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   @ApiOkResponse({ type: ArticleEntity })
@@ -84,7 +96,9 @@ export class ArticlesController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateArticleDto: UpdateArticleDto,
     @UploadedFile() image: Express.Multer.File,
+    @CurrentUser() user: User,
   ) {
+    updateArticleDto.authorId = user.id;
     return new ArticleEntity(
       await this.articlesService.update(id, updateArticleDto, image),
     );

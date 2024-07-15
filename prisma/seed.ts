@@ -40,49 +40,27 @@ async function main() {
   // create two dummy articles
   const post1 = await prisma.article.upsert({
     where: { id: 1 }, // id로만 조건 설정
-    update: {
-      title: 'Prisma Adds Support for MongoDB',
-      content:
-        'Support for MongoDB has been one of the most requested features since the initial release of...',
-      image: null,
-      hashtag: ['prisma', 'mongodb'], // set 대신 단순 배열 사용
-      authorId: user1.id,
-    },
+    update: {},
     create: {
-      title: 'Prisma Adds Support for MongoDB',
-      content:
-        'Support for MongoDB has been one of the most requested features since the initial release of...',
+      title: '진영이가 남긴 첫번째 게시물이요',
+      content: '으하하 어떤데',
       image: null,
-      hashtag: ['prisma', 'mongodb'], // set 대신 단순 배열 사용
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      hashtag: ['신', '진'],
       authorId: user1.id,
     },
   });
 
   const post2 = await prisma.article.upsert({
     where: { id: 2 }, // id로만 조건 설정
-    update: {
-      title: "What's new in Prisma? (Q1/22)",
-      content:
-        'Our engineers have been working hard, issuing new releases with many improvements...',
-      image: 'https://example.com/image.png',
-      hashtag: ['prisma', 'update', 'q1'], // set 대신 단순 배열 사용
-      authorId: user2.id,
-    },
+    update: {},
     create: {
-      title: "What's new in Prisma? (Q1/22)",
-      content:
-        'Our engineers have been working hard, issuing new releases with many improvements...',
+      title: '진영이가 남긴 두번째 게시물이요',
+      content: '어떠냐아앗',
       image: 'https://example.com/image.png',
-      hashtag: ['prisma', 'update', 'q1'], // set 대신 단순 배열 사용
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      hashtag: ['진', '영', '신'], // set 대신 단순 배열 사용
       authorId: user2.id,
     },
   });
-
-  console.log({ post1, post2 });
 }
 
 // execute the main function
