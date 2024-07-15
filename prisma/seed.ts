@@ -61,6 +61,39 @@ async function main() {
       authorId: user2.id,
     },
   });
+
+  // create dummy comments
+  const comment1 = await prisma.comment.create({
+    data: {
+      content: '좋은 글이네요!',
+      articleId: post1.id,
+      userId: user2.id,
+    },
+  });
+
+  const comment2 = await prisma.comment.create({
+    data: {
+      content: '동의합니다!',
+      articleId: post1.id,
+      userId: user1.id,
+    },
+  });
+
+  const comment3 = await prisma.comment.create({
+    data: {
+      content: '흥미로운 글이네요.',
+      articleId: post2.id,
+      userId: user1.id,
+    },
+  });
+
+  const comment4 = await prisma.comment.create({
+    data: {
+      content: '잘 읽었습니다.',
+      articleId: post2.id,
+      userId: user2.id,
+    },
+  });
 }
 
 // execute the main function
