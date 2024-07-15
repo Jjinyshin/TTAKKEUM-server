@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime @updatedAt
   articles  Article[]
   comments  Comment[]
+  likes     Like[]
 }
 
 model Article {
@@ -25,12 +26,12 @@ model Article {
   content   String
   image     String?
   hashtag   Json?
-  likes     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   authorId  Int
   author    User     @relation(fields: [authorId], references: [id])
   comments  Comment[]
+  likes     Like[]
 }
 
 model Comment {
@@ -42,4 +43,15 @@ model Comment {
   userId      Int
   article     Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
   user        User    @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  articleId Int
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, userId])
 }
