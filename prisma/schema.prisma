@@ -40,6 +40,6 @@ model Comment {
   updatedAt   DateTime @updatedAt
   articleId   Int
   userId      Int
-  article     Article @relation(fields: [articleId], references: [id])
+  article     Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
   user        User    @relation(fields: [userId], references: [id])
 }
