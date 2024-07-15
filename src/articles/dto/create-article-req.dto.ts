@@ -39,9 +39,4 @@ export class CreateArticleRequestDto {
     description: '해시태그 (쉼표로 구분된 문자열)',
   })
   hashtag?: string;
-
-  @IsNumber()
-  @ApiProperty({ description: '작성자 ID' })
-  @Type(() => Number)
-  authorId: number;
 }
