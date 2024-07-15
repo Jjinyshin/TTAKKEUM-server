@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { CommentEntity } from './entities/comment.entity';
+import { ParseIntPipe } from '@nestjs/common';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -35,12 +36,21 @@ export class CommentsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return new CommentEntity(
+      await this.commentsService.update(id, updateCommentDto),
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return new CommentEntity(await this.commentsService.remove(id));
   }
 }
