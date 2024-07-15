@@ -29,6 +29,7 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { LikeArticleDto } from './dto/like-article.dto';
 import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
+import { UpdateArticleRequestDto } from './dto/update-article-req.dto';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -102,11 +103,22 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleEntity })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateArticleDto: UpdateArticleDto,
+    @Body() body: UpdateArticleRequestDto,
     @UploadedFile() image: Express.Multer.File,
     @CurrentUser() user: User,
   ) {
+    let hashtags: string[] = [];
+    if (body.hashtag) {
+      hashtags = body.hashtag.split(',').map((tag) => tag.trim());
+    }
+
+    const updateArticleDto = new UpdateArticleDto();
+    updateArticleDto.title = body.title;
+    updateArticleDto.content = body.content;
+    updateArticleDto.image = body.image;
+    updateArticleDto.hashtag = hashtags;
     updateArticleDto.authorId = user.id;
+
     return new ArticleEntity(
       await this.articlesService.update(id, updateArticleDto, image),
     );

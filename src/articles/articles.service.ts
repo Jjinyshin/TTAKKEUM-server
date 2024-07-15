@@ -6,7 +6,6 @@ import { ArticleEntity } from './entities/article.entity';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { LikeArticleDto } from './dto/like-article.dto';
-import { UserEntity } from 'src/users/entities/user.entity';
 import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
 
 @Injectable()
@@ -81,7 +80,8 @@ export class ArticlesService {
     updateArticleDto: UpdateArticleDto,
     image?: Express.Multer.File,
   ): Promise<ArticleEntity> {
-    const { authorId, ...articleData } = updateArticleDto;
+    const { authorId, hashtag, ...articleData } = updateArticleDto;
+    const hashtags = Array.isArray(hashtag) ? hashtag : [hashtag];
 
     let imageUrl: string | null = null;
     if (image) {
@@ -96,6 +96,7 @@ export class ArticlesService {
       data: {
         ...articleData,
         ...(imageUrl && { image: imageUrl }),
+        hashtag: hashtags || [],
         author: {
           connect: { id: authorId },
         },
@@ -105,7 +106,7 @@ export class ArticlesService {
 
     return new ArticleEntity({
       ...article,
-      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+      hashtag: article.hashtag as string[],
     });
   }
 
@@ -117,7 +118,7 @@ export class ArticlesService {
 
     return new ArticleEntity({
       ...article,
-      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+      hashtag: article.hashtag as string[],
     });
   }
 
