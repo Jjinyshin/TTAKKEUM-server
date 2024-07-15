@@ -27,6 +27,7 @@ import { CreateArticleRequestDto } from './dto/create-article-req.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from '@prisma/client';
+import { LikeArticleDto } from './dto/like-article.dto';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -72,6 +73,7 @@ export class ArticlesController {
       if (entity.image) {
         entity.image = `${process.env.BASE_URL}${entity.image}`;
       }
+      return entity;
     });
   }
 
@@ -108,5 +110,18 @@ export class ArticlesController {
   @ApiOkResponse({ type: ArticleEntity })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return new ArticleEntity(await this.articlesService.remove(id));
+  }
+
+  @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: ArticleEntity })
+  async like(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() likeArticleDto: LikeArticleDto,
+  ) {
+    return new ArticleEntity(
+      await this.articlesService.like(id, likeArticleDto),
+    );
   }
 }

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ArticleEntity } from './entities/article.entity';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { LikeArticleDto } from './dto/like-article.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -109,6 +110,29 @@ export class ArticlesService {
   async remove(id: number): Promise<ArticleEntity> {
     const article = await this.prisma.article.delete({
       where: { id },
+      include: { author: true },
+    });
+
+    return new ArticleEntity({
+      ...article,
+      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+    });
+  }
+
+  // '좋아요' 여부에 따라 증가 또는 감소 메서드
+  async like(
+    id: number,
+    likeArticleDto: LikeArticleDto,
+  ): Promise<ArticleEntity> {
+    const { like } = likeArticleDto;
+
+    const article = await this.prisma.article.update({
+      where: { id },
+      data: {
+        likes: {
+          increment: like ? 1 : -1,
+        },
+      },
       include: { author: true },
     });
 
