@@ -31,6 +31,9 @@ export class ArticleEntity implements Article {
   })
   hashtag: string[];
 
+  @ApiProperty({ description: '좋아요 수' })
+  likes: number;
+
   @ApiProperty({ description: '게시글 작성시각' })
   createdAt: Date;
 
