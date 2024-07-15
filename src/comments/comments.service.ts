@@ -7,16 +7,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CommentsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
-  }
-
-  findAll() {
-    return `This action returns all comments`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  async create(createCommentDto: CreateCommentDto) {
+    const { articleId, userId, ...commentDate } = createCommentDto;
+    return await this.prisma.comment.create({
+      data: {
+        ...commentDate,
+        user: {
+          connect: { id: userId },
+        },
+        article: {
+          connect: { id: articleId },
+        },
+      },
+    });
   }
 
   update(id: number, updateCommentDto: UpdateCommentDto) {
