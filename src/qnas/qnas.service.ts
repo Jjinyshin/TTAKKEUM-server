@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { QuestionEntity } from './entities/question.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateAnswerDto } from './dto/create-answer.dto';
+import { AnswerEntity } from './entities/answer.entity';
 
 @Injectable()
 export class QnasService {
@@ -42,8 +43,26 @@ export class QnasService {
     return new QuestionEntity(question);
   }
 
-  async createAnswer(createAnswerDto: CreateAnswerDto) {
-    return 'This action adds a new answer';
+  async createAnswer(
+    createAnswerDto: CreateAnswerDto,
+    authorId: number,
+  ): Promise<AnswerEntity> {
+    const answer = await this.prisma.answer.create({
+      data: {
+        ...createAnswerDto,
+        authorId,
+      },
+      include: {
+        author: true,
+        question: true,
+      },
+    });
+
+    return new AnswerEntity({
+      ...answer,
+      author: new UserEntity(answer.author),
+      question: new QuestionEntity(answer.question),
+    });
   }
 
   async removeAnswer(id: number) {

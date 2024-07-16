@@ -17,7 +17,7 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 
 @Controller('questions')
-@ApiTags('questions')
+@ApiTags('qnas')
 export class QnasController {
   constructor(private readonly qnasService: QnasService) {}
 
@@ -45,8 +45,13 @@ export class QnasController {
   }
 
   @Post(':questionId/answers')
-  async createAnswer(@Body() createAnswerDto: CreateAnswerDto) {
-    return this.qnasService.createAnswer(createAnswerDto);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async createAnswer(
+    @Body() createAnswerDto: CreateAnswerDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.qnasService.createAnswer(createAnswerDto, user.id);
   }
 
   @Delete(':questionId/answers/:answerId')
