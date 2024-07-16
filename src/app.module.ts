@@ -6,8 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ArticlesModule } from './articles/articles.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
-import { QuestionsModule } from './questions/questions.module';
-import { AnswersModule } from './answers/answers.module';
+import { QnasModule } from './qnas/qnas.module';
 
 @Module({
   imports: [
@@ -16,8 +15,7 @@ import { AnswersModule } from './answers/answers.module';
     UsersModule,
     ArticlesModule,
     CommentsModule,
-    QuestionsModule,
-    AnswersModule,
+    QnasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
