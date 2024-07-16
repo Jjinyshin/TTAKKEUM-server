@@ -30,11 +30,15 @@ export class QuestionsService {
     });
   }
 
-  findAll() {
+  async findAll() {
     return `This action returns all questions`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} question`;
+  async remove(id: number) {
+    const question = await this.prisma.question.delete({
+      where: { id },
+      include: { author: false, answers: false },
+    });
+    return new QuestionEntity(question);
   }
 }

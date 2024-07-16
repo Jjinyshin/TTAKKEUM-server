@@ -144,6 +144,8 @@ export class ArticlesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: ArticleEntity })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return new ArticleEntity(await this.articlesService.remove(id));

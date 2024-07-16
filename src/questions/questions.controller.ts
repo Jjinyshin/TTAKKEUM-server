@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -22,7 +23,7 @@ export class QuestionsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  create(
+  async create(
     @Body() createQuestionDto: CreateQuestionDto,
     @CurrentUser() user: User,
   ) {
@@ -31,12 +32,14 @@ export class QuestionsController {
 
   // TODO: 답변까지 리턴하기
   @Get()
-  findAll() {
+  async findAll() {
     return this.questionsService.findAll();
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.questionsService.remove(id);
   }
 }

@@ -144,7 +144,6 @@ export class ArticlesService {
   }
 
   async remove(id: number): Promise<ArticleEntity> {
-    // 관련된 댓글 삭제
     await this.prisma.comment.deleteMany({
       where: { articleId: id },
     });
