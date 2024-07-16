@@ -49,7 +49,15 @@ export class ArticlesService {
 
   async findAll(): Promise<ArticleEntity[]> {
     const articles = await this.prisma.article.findMany({
-      include: { author: true, comments: { include: { user: true } } },
+      include: {
+        author: true,
+        comments: {
+          include: { user: true },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return articles.map(
