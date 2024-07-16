@@ -45,11 +45,13 @@ export class QnasService {
 
   async createAnswer(
     createAnswerDto: CreateAnswerDto,
+    questionId: number,
     authorId: number,
   ): Promise<AnswerEntity> {
     const answer = await this.prisma.answer.create({
       data: {
         ...createAnswerDto,
+        questionId,
         authorId,
       },
       include: {
@@ -65,7 +67,16 @@ export class QnasService {
     });
   }
 
-  async removeAnswer(id: number) {
-    return `This action removes a #${id} answer`;
+  async removeAnswer(id: number): Promise<AnswerEntity> {
+    const answer = await this.prisma.answer.delete({
+      where: { id },
+      include: { author: true, question: true },
+    });
+
+    return new AnswerEntity({
+      ...answer,
+      author: new UserEntity(answer.author),
+      question: new QuestionEntity(answer.question),
+    });
   }
 }

@@ -48,13 +48,16 @@ export class QnasController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async createAnswer(
+    @Param('questionId', ParseIntPipe) questionId: number,
     @Body() createAnswerDto: CreateAnswerDto,
     @CurrentUser() user: User,
   ) {
-    return this.qnasService.createAnswer(createAnswerDto, user.id);
+    return this.qnasService.createAnswer(createAnswerDto, questionId, user.id);
   }
 
   @Delete(':questionId/answers/:answerId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async removeAnswer(
     @Param('questionId', ParseIntPipe) questionId: number,
     @Param('answerId', ParseIntPipe) answerId: number,
