@@ -31,8 +31,32 @@ export class QnasService {
     });
   }
 
-  async findAllQnas() {
-    return `This action returns all questions`;
+  async findAllQnas(): Promise<QuestionEntity[]> {
+    const questions = await this.prisma.question.findMany({
+      include: {
+        author: true,
+        answers: {
+          include: {
+            author: true,
+          },
+        },
+      },
+    });
+
+    return questions.map(
+      (question) =>
+        new QuestionEntity({
+          ...question,
+          author: new UserEntity(question.author),
+          answers: question.answers.map(
+            (answer) =>
+              new AnswerEntity({
+                ...answer,
+                author: new UserEntity(answer.author),
+              }),
+          ),
+        }),
+    );
   }
 
   async removeQuestion(id: number) {

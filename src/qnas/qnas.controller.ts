@@ -31,7 +31,6 @@ export class QnasController {
     return this.qnasService.createQuestion(createQuestionDto, user.id);
   }
 
-  // TODO: 답변까지 리턴하기
   @Get()
   async findAllQnas() {
     return this.qnasService.findAllQnas();
@@ -55,13 +54,10 @@ export class QnasController {
     return this.qnasService.createAnswer(createAnswerDto, questionId, user.id);
   }
 
-  @Delete(':questionId/answers/:answerId')
+  @Delete('answers/:answerId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async removeAnswer(
-    @Param('questionId', ParseIntPipe) questionId: number,
-    @Param('answerId', ParseIntPipe) answerId: number,
-  ) {
+  async removeAnswer(@Param('answerId', ParseIntPipe) answerId: number) {
     return this.qnasService.removeAnswer(answerId);
   }
 }
