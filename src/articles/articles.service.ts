@@ -3,11 +3,12 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ArticleEntity } from './entities/article.entity';
+import { LikeEntity } from './entities/like.entity';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { LikeArticleDto } from './dto/like-article.dto';
 import { DochiofTheWeekDto } from 'src/users/dto/read-dochi-of-the-week.dto';
 import { CommentEntity } from 'src/comments/entities/comment.entity';
+import { ReadArticleResponseDto } from './dto/read-article-detail-res.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -48,7 +49,7 @@ export class ArticlesService {
 
   async findAll(): Promise<ArticleEntity[]> {
     const articles = await this.prisma.article.findMany({
-      include: { author: true },
+      include: { author: true, comments: { include: { user: true } } },
     });
 
     return articles.map(
@@ -56,11 +57,14 @@ export class ArticlesService {
         new ArticleEntity({
           ...article,
           hashtag: article.hashtag as string[],
+          comments: article.comments.map(
+            (comment) => new CommentEntity(comment),
+          ),
         }),
     );
   }
 
-  async findOne(id: number): Promise<ArticleEntity> {
+  async findOne(id: number, currentUserId): Promise<ArticleEntity> {
     const article = await this.prisma.article.findUnique({
       where: { id },
       include: {
@@ -70,6 +74,7 @@ export class ArticlesService {
             user: true,
           },
         },
+        likes: true,
       },
     });
 
@@ -77,11 +82,22 @@ export class ArticlesService {
       throw new NotFoundException(`Article with ID ${id} not found`);
     }
 
-    return new ArticleEntity({
-      ...article,
-      hashtag: article.hashtag as string[],
-      comments: article.comments.map((comment) => new CommentEntity(comment)), // Explicitly map comments to CommentEntity
-    });
+    const isLike = article.likes.some((like) => like.userId === currentUserId);
+    const { likes, ...articleWithoutLikes } = article;
+
+    const articleDetail = new ReadArticleResponseDto(
+      new ArticleEntity({
+        ...articleWithoutLikes,
+        hashtag: article.hashtag as string[],
+        comments: article.comments.map((comment) => new CommentEntity(comment)),
+      }),
+      isLike,
+    );
+    if (articleDetail.image) {
+      articleDetail.image = `${process.env.BASE_URL}${articleDetail.image}`;
+    }
+
+    return articleDetail;
   }
 
   async update(
@@ -120,6 +136,11 @@ export class ArticlesService {
   }
 
   async remove(id: number): Promise<ArticleEntity> {
+    // 관련된 댓글 삭제
+    await this.prisma.comment.deleteMany({
+      where: { articleId: id },
+    });
+
     const article = await this.prisma.article.delete({
       where: { id },
       include: { author: true },
@@ -131,44 +152,69 @@ export class ArticlesService {
     });
   }
 
-  // '좋아요' 여부에 따라 증가 또는 감소 메서드
-  async like(
-    id: number,
-    likeArticleDto: LikeArticleDto,
-  ): Promise<ArticleEntity> {
-    const { like } = likeArticleDto;
-
-    const article = await this.prisma.article.update({
-      where: { id },
+  async addLike(articleId: number, userId: number): Promise<LikeEntity> {
+    const like = await this.prisma.like.create({
       data: {
-        likes: {
-          increment: like ? 1 : -1,
+        articleId,
+        userId,
+      },
+    });
+
+    await this.prisma.article.update({
+      where: { id: articleId },
+      data: {
+        likeCount: {
+          increment: 1,
         },
       },
-      include: { author: true },
     });
 
-    return new ArticleEntity({
-      ...article,
-      hashtag: article.hashtag as string[], // Explicitly cast JsonValue to string[]
+    return new LikeEntity(like);
+  }
+
+  async removeLike(articleId: number, userId: number): Promise<LikeEntity> {
+    const like = await this.prisma.like.delete({
+      where: {
+        articleId_userId: {
+          articleId,
+          userId,
+        },
+      },
     });
+
+    await this.prisma.article.update({
+      where: { id: articleId },
+      data: {
+        likeCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    return new LikeEntity(like);
   }
 
   async getTopArticlesAuthors(): Promise<DochiofTheWeekDto[]> {
     const topArticles = await this.prisma.article.findMany({
       orderBy: {
-        likes: 'desc',
+        likeCount: 'desc',
       },
       take: 3,
       include: {
         author: true,
+        likes: true,
       },
     });
 
     const topAuthors = topArticles.map(
       (article) =>
-        new DochiofTheWeekDto(article.author, article.likes, article.image),
+        new DochiofTheWeekDto(
+          article.author,
+          article.likes.length,
+          article.image,
+        ),
     );
+
     return topAuthors;
   }
 }

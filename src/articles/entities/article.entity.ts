@@ -2,11 +2,22 @@ import { Article } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CommentEntity } from 'src/comments/entities/comment.entity';
+import { LikeEntity } from './like.entity';
 
 export class ArticleEntity implements Article {
-  constructor({ author, ...data }: Partial<ArticleEntity>) {
-    this.author = new UserEntity(author);
+  constructor(data: Partial<ArticleEntity>) {
     Object.assign(this, data);
+    if (data.author) {
+      this.author = new UserEntity(data.author);
+    }
+    if (data.likes) {
+      this.likes = data.likes.map((like) => new LikeEntity(like));
+    }
+    if (data.comments) {
+      this.comments = data.comments.map(
+        (comment) => new CommentEntity(comment),
+      );
+    }
   }
 
   @ApiProperty({ description: '게시글 id' })
@@ -33,7 +44,7 @@ export class ArticleEntity implements Article {
   hashtag: string[];
 
   @ApiProperty({ description: '좋아요 수' })
-  likes: number;
+  likeCount: number;
 
   @ApiProperty({ description: '게시글 작성시각' })
   createdAt: Date;
@@ -49,4 +60,7 @@ export class ArticleEntity implements Article {
 
   @ApiProperty({ description: '댓글들', type: () => [CommentEntity] })
   comments: CommentEntity[];
+
+  @ApiProperty({ description: '좋아요들', type: () => [CommentEntity] })
+  likes: LikeEntity[];
 }
