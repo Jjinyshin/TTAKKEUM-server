@@ -9,7 +9,7 @@ import { CreateAnswerDto } from './dto/create-answer.dto';
 export class QnasService {
   constructor(private prisma: PrismaService) {}
 
-  async create(
+  async createQuestion(
     createQuestionDto: CreateQuestionDto,
     authorId: number,
   ): Promise<QuestionEntity> {
@@ -30,11 +30,11 @@ export class QnasService {
     });
   }
 
-  async findAll() {
+  async findAllQnas() {
     return `This action returns all questions`;
   }
 
-  async remove(id: number) {
+  async removeQuestion(id: number) {
     const question = await this.prisma.question.delete({
       where: { id },
       include: { author: false, answers: false },

@@ -19,34 +19,34 @@ import { CreateAnswerDto } from './dto/create-answer.dto';
 @Controller('questions')
 @ApiTags('questions')
 export class QnasController {
-  constructor(private readonly questionsService: QnasService) {}
+  constructor(private readonly qnasService: QnasService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async create(
+  async createQuestion(
     @Body() createQuestionDto: CreateQuestionDto,
     @CurrentUser() user: User,
   ) {
-    return this.questionsService.create(createQuestionDto, user.id);
+    return this.qnasService.createQuestion(createQuestionDto, user.id);
   }
 
   // TODO: 답변까지 리턴하기
   @Get()
-  async findAll() {
-    return this.questionsService.findAll();
+  async findAllQnas() {
+    return this.qnasService.findAllQnas();
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.questionsService.remove(id);
+  async removeQuestion(@Param('id', ParseIntPipe) id: number) {
+    return await this.qnasService.removeQuestion(id);
   }
 
   @Post(':questionId/answers')
   async createAnswer(@Body() createAnswerDto: CreateAnswerDto) {
-    return this.questionsService.createAnswer(createAnswerDto);
+    return this.qnasService.createAnswer(createAnswerDto);
   }
 
   @Delete(':questionId/answers/:answerId')
@@ -54,6 +54,6 @@ export class QnasController {
     @Param('questionId', ParseIntPipe) questionId: number,
     @Param('answerId', ParseIntPipe) answerId: number,
   ) {
-    return this.questionsService.removeAnswer(answerId);
+    return this.qnasService.removeAnswer(answerId);
   }
 }
