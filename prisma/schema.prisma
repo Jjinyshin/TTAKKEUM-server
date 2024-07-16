@@ -76,6 +76,6 @@ model Answer {
   updatedAt   DateTime @updatedAt
   questionId  Int
   authorId    Int
-  question    Question @relation(fields: [questionId], references: [id])
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   author      User @relation(fields: [authorId], references: [id])
 }
