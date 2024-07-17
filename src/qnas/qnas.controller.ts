@@ -16,12 +16,12 @@ import { User } from '@prisma/client';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 
-@Controller('questions')
+@Controller('qnas')
 @ApiTags('qnas')
 export class QnasController {
   constructor(private readonly qnasService: QnasService) {}
 
-  @Post()
+  @Post('/questions')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async createQuestion(
@@ -43,7 +43,7 @@ export class QnasController {
     return await this.qnasService.removeQuestion(id);
   }
 
-  @Post(':questionId/answers')
+  @Post(':qnaId/answers')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async createAnswer(
